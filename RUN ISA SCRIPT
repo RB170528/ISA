@@ -1,5 +1,0 @@
-#:  Input only height values in meters
-#:  Only change the value and run this code
-
-import ISA
-ISA.data(648)  # HEIGHT = 658 m
