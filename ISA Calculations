@@ -1,0 +1,140 @@
+# FOR RUN THIS CODE YOU MUST HAD INSTALLED THE NUMPY LIBRARY, MATE!
+
+import numpy as np
+
+#: declaring_constants
+
+T0 = 288.16  #: Sea level air temperature [K]
+P0 = 101325  #: Sea level air pressure [Pa]
+Rho0 = 1.225  #: Sea level air density [kg/m^3]
+g = -9.80665  #: Gravity constant [m/s^2]
+er = 6371000  #: Earth radius [m]
+R = 287.05  #: Individual Air Constant [J/kg*K]
+Mu0 = 0.00001716  #: Sutherland's dynamic viscosity [kg/m*s]
+a1 = -0.0065  #: Lapse Rate [K/m]
+a2 = 0.003  #: Lapse Rate [K/m]
+a3 = -0.0045  #: Lapse Rate [K/m]
+a4 = 0.004  #: Lapse Rate [K/m]
+
+#: Calculating_Reference_data
+
+h0 = 0  #: Checked
+t0 = T0
+p0 = P0
+d0 = Rho0
+
+h1 = 11000  #: Checked
+t1 = t0 + a1 * (h1 - h0)
+p1 = p0 * np.power(t1 / t0, g / (R * a1))
+d1 = d0 * np.power(t1 / t0, g / ((R * a1) - 1))
+
+h2 = 25000  #: Checked
+t2 = t1
+p2 = p1 * np.exp((g / (R * t2) * (h2 - h1)))
+d2 = d1 * np.exp((g / (R * t2) * (h2 - h1)))
+
+h3 = 47000  #: Checked
+t3 = t2 + a2 * (h3 - h2)
+p3 = p2 * np.power(t3 / t2, g / (R * a2))
+d3 = d2 * np.power(t3 / t2, g / ((R * a2) - 1))
+
+h4 = 53000  #: Checked
+t4 = t3
+p4 = p3 * np.exp((g / (R * t4) * (h4 - h3)))
+d4 = d3 * np.exp((g / (R * t4) * (h4 - h3)))
+
+h5 = 79000  #: Checked
+t5 = t4 + a3 * (h5 - h4)
+p5 = p4 * np.power(t5 / t4, g / (R * a3))
+d5 = d4 * np.power(t5 / t4, g / ((R * a3) - 1))
+
+h6 = 90000  #: Checked
+t6 = t5
+p6 = p5 * np.exp((g / (R * t6) * (h6 - h5)))
+d6 = d5 * np.exp((g / (R * t6) * (h6 - h5)))
+
+h7 = 105000  #: Checked
+t7 = p6 + a4 * (h7 - h6)
+p7 = p6 * np.power(t7 / t6, g / R * a4)
+d7 = d6 * np.power(t7 / t6, g / ((R * a4) - 1))
+
+
+#: Defining_function
+
+def data(hg):
+    h = (er / (er + hg)) * hg  #: geopotential altitude [m]
+    ft = h * 3.28084  #: geopotential altitude [ft]
+
+    if h >= 0 and h < 105000:
+
+        global t  # Declairing_global_"t"_in_order_to_export_the_module
+        global p  # Declairing_global_"p"_in_order_to_export_the_module
+        global d  # Declairing_global_"d"_in_order_to_export_the_module
+
+        if h <= 11000:
+            t = t0 + a1 * (h - h0)
+            p = p0 * np.power(t / t0, g / (R * a1))
+            d = d0 * np.power(t / t0, g / ((R * a1) - 1))
+
+        elif h > 11000 and h <= 25000:
+            t = t1
+            p = p1 * np.exp((g / (R * t) * (h - h1)))
+            d = d1 * np.exp((g / (R * t) * (h - h1)))
+        elif h > 25000 and h <= 47000:
+            t = t2 + a2 * (h - h2)
+            p = p2 * np.power(t / t2, g / (R * a2))
+            d = d2 * np.power(t / t2, g / ((R * a2) - 1))
+        elif h > 47000 and h <= 53000:
+            t = t3
+            p = p3 * np.exp((g / (R * t) * (h - h3)))
+            d = d3 * np.exp((g / (R * t) * (h - h3)))
+        elif h > 53000 and h <= 79000:
+            t = t4 + a3 * (h - h4)
+            p = p4 * np.power(t / t4, g / (R * a3))
+            d = d4 * np.power(t / t4, g / ((R * a3) - 1))
+        elif h > 79000 and h <= 90000:
+            t = t5
+            p = p5 * np.exp((g / (R * t) * (h - h5)))
+            d = d5 * np.exp((g / (R * t) * (h - h5)))
+        elif h > 90000 and h <= 105000:
+            t = p6 + a4 * (h - h6)
+            p = p6 * np.power(t / t6, g / R * a4)
+            d = d6 * np.power(t / t6, g / ((R * a4) - 1))
+
+        t = float(t)
+        p = float(p)
+        d = float(d)
+
+        #:  Converting_Units
+
+        global a
+        global v
+
+        psi = p * (14.696/101325)
+        inhg = p * 0.0002953
+        tc = t - 273.15
+        mu = Mu0 * np.power(t/273.15, 1.5) * ((273.15 + 110.4) / (t + 110.4))
+        v = mu / d
+        a = np.power(1.4*R*t, 0.5)
+
+
+        # Print_Variables
+
+        print('')
+        print('\tISA Values')
+        print('')
+        print('\tGeometric Altitude: ' + str(round(hg, 9)) + ' [m]')
+        print('\tGeopotential Altitude: '+ str(round(h, 9)) +' [m]')
+        print('\tGeopotential Altitude: '+ str(round(ft, 9)) +' [ft]')
+        print('\tAtmospheric Pressure: '+ str(round(p, 9)) +' [Pa]')
+        print('\tAtmospheric Pressure: ' +str(round(psi, 9)) +' [psi]')
+        print('\tAtmospheric Pressure: '+ str(round(inhg, 9)) +' [in.Hg]')
+        print('\tTemperature: '+ str(round(t, 9)) +' [K]')
+        print('\tTemperature: '+ str(round(tc, 9)) +' [°C]')
+        print('\tDensity: '+ str(round(d, 9)) +' [kg/m^3]')
+        print('\tDynamic Viscosity: ' + str(round(mu, 9)) + ' [Pa.s]')
+        print('\tCinematic Viscosity: '+ str(round(v, 9)) +' [m^2/s]')
+        print('\tLocal Sound Speed: '+ str(round(a, 9)) +' [m/s]')
+
+    else:
+        print('Enter a valid ISA range altitude value')
